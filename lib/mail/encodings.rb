@@ -119,7 +119,7 @@ module Mail
       lines = collapse_adjacent_encodings(str)
 
       # Split on white-space boundaries with capture, so we capture the white-space as well
-      lines.map do |line|
+      parts = lines.map do |line|
         line.split(/([ \t])/).map do |text|
           if text.index('=?').nil?
             text
@@ -141,7 +141,13 @@ module Mail
             end
           end
         end
-      end.flatten.join("")
+      end.flatten
+      # If there are multiple encodings in the result, normalize it
+      # all to UTF-8
+      if parts.map { |x| x.encoding }.uniq.count > 1
+        parts.each do |x| x.force_encoding('utf-8') end
+      end
+      parts.join("")
     end
 
     # Takes an encoded string of the format =?<encoding>?[QB]?<string>?=
