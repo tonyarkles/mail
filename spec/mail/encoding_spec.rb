@@ -195,4 +195,12 @@ describe "mail encoding" do
       m.subject.should eq "Hello  World"
     end
   end
+
+  it "should handle junk mixed-encoding characters" do
+    m = Mail.new
+    m['Subject'] = Mail::SubjectField.new("Youll L =?utf-8?Q?=E2=99=A5?= VE our Valentine's deals and contest. But hurry, theyll be gone in a heartbeat".force_encoding('ASCII-8BIT'))
+    if RUBY_VERSION > '1.9'
+      lambda { m.subject.should be_valid_encoding }.should_not raise_error
+    end
+  end
 end
